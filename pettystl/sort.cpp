@@ -1,5 +1,6 @@
 #include <iostream>
 #include <iomanip>
+#include "sort.h"
 
 namespace pettystl {
     // 显示数组
