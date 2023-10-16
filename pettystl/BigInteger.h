@@ -2,20 +2,20 @@
 
 #define BIG_INTEGET_MAX_LENGTH 1000
 namespace pettystl {
-    
+    typedef unsigned char byte;
     class BigInteger {
         private:
-            char data[BIG_INTEGET_MAX_LENGTH];
+            byte data[BIG_INTEGET_MAX_LENGTH];
             int len;
             int sign;
         private:
             void trimHighZero();
-            int absCompare(const char * bint1, int bint1L, const char * bint2, int bint2L) const;
-            int absAdd(char dest[], const BigInteger& bint1, const BigInteger& bint2, int powerOffset = 0);
-            int absMinus(char dest[], const BigInteger& bint1, const BigInteger& bint2) const;
-            int absMinus(char dest[], int len, const BigInteger& bint2) const;
-            int absMultiplyOneDigit(char dest[], const BigInteger& other, const char digit);
-            int absDivideOneStep(char dest[], int len, const BigInteger& other);
+            int absCompare(const byte * bint1, int bint1L, const byte * bint2, int bint2L) const;
+            int absAdd(byte dest[], const BigInteger& bint1, const BigInteger& bint2, int powerOffset = 0);
+            int absMinus(byte dest[], const BigInteger& bint1, const BigInteger& bint2) const;
+            int absMinus(byte dest[], int len, const BigInteger& bint2) const;
+            int absMultiplyOneDigit(byte dest[], const BigInteger& other, const byte digit);
+            int absDivideOneStep(byte dest[], int len, const BigInteger& other);
         public:
             BigInteger();
             ~BigInteger();
