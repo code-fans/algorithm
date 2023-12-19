@@ -7,8 +7,7 @@ namespace pettystl {
     BigInteger::BigInteger() {
         sign = 1;
         len=1;
-        data[0] = '0';
-        data[1] = '\0';
+        //data = {0};
     }
 
     BigInteger::~BigInteger() {
@@ -16,13 +15,12 @@ namespace pettystl {
     }
 
     void BigInteger::trimHighZero() {
-        while(len>1 && (data[len-1] == '0' || data[len-1] == '\0')){
+        while(len>1 && data[len-1] == 0){
             len --;
-            data[len] = '\0';
         }
     }
 
-    int BigInteger::absCompare(const char * bint1, int bint1L, const char * bint2, int bint2L) const{
+    int BigInteger::absCompare(const byte * bint1, int bint1L, const byte * bint2, int bint2L) const{
         if(bint1L>bint2L)
             return 1;
         if(bint1L<bint2L)
@@ -36,103 +34,107 @@ namespace pettystl {
         return 0;
     }
 
-    int BigInteger::absAdd(char dest[], const BigInteger& other, const BigInteger& other2, int powerOffset) {
+    int BigInteger::absAdd(byte dest[], const BigInteger& other, const BigInteger& other2, int powerOffset) {
         int z = 0;
         int len = std::max(other.len, other2.len + powerOffset);
         for (int i = 0; i< len; i++) {
             int a=0, b=0;
             if(i<other.len)
-                a= other.data[i]-'0';
+                a= other.data[i];
 
             if(i>=powerOffset && i<other2.len+powerOffset)
-                b=other2.data[i-powerOffset]-'0';
+                b=other2.data[i-powerOffset];
 
-            dest[i] = (a+b+z)%10+'0';
+            dest[i] = (a+b+z)%10;
             z=(a+b+z)/10;
         }
         if (z!=0) {
-            dest[len] = z+'0';
+            dest[len] = z;
             len ++;
         }
-        dest[len] = '\0';
+        dest[len] = 0;
         return len;
     }
 
-    int BigInteger::absMinus(char dest[], const BigInteger& other, const BigInteger& other2) const {
+    int BigInteger::absMinus(byte dest[], const BigInteger& other, const BigInteger& other2) const {
         int z = 0;
         int len = other.len; // bint1 >= bint2
         for (int i = 0; i< len; i++) {
             int a=0, b=0;
             if(i<other.len)
-                a= other.data[i]-'0';
+                a= other.data[i];
 
             if(i<other2.len)
-                b=other2.data[i]-'0';
+                b=other2.data[i];
 
             if(a+z<b){
-                dest[i] = (10+a+z -b)+'0';
+                dest[i] = (10+a+z -b);
                 z = -1;
             } else {
-                dest[i] = (a+z - b) + '0'; 
+                dest[i] = (a+z - b); 
                 z = 0;
             }
         }
-        dest[len] = '\0';
+        dest[len] = 0;
         return len;
     }
 
-    int BigInteger::absMinus(char dest[], int len, const BigInteger& other2) const{
+    int BigInteger::absMinus(byte dest[], int len, const BigInteger& other2) const{
         int z = 0;
         for (int i = 0; i< len; i++) {
             int a=0, b=0;
             if(i<len)
-                a= dest[i]-'0';
+                a= dest[i];
 
             if(i<other2.len)
-                b= other2.data[i]-'0';
+                b= other2.data[i];
 
             if(a+z<b){
-                dest[i] = (10+a+z -b)+'0';
+                dest[i] = (10+a+z -b);
                 z = -1;
             } else {
-                dest[i] = (a+z - b) + '0'; 
+                dest[i] = (a+z - b); 
                 z = 0;
             }
         }
-        dest[len] = '\0';
+        dest[len] = 0;
         return len;
     }
 
     std::string BigInteger::toString() const {
         char str[BIG_INTEGET_MAX_LENGTH];
-        std::memcpy(str, data, len);
-        int strLen = len;
+        int pos=0;
         if(sign<0){
-            str[strLen] = '-';
-            strLen ++;
+            str[pos++] = '-';
         }
-        str[strLen] = '\0';
-        std::reverse(str, str+strLen);
+        for(int i=len-1; i>=0; i--){
+            str[pos++] = data[i]+'0';
+        }
+        str[pos++]='\0';
         std::string s = str;
         return s;
     } 
 
     BigInteger& BigInteger::fromString(const std::string str) {
         len = str.length();
-        std::memcpy(data, str.data(), len);
-        std::reverse(data, data+len);
         sign = 1;
-        if(data[len-1] == '+' || data[len-1] == '-'){
-            sign = data[len-1] == '-' ? -1 : 1;
+        int bPos = 0;
+        if(str[0] == '+' || str[0] == '-'){
+            sign =str[0] == '-' ? -1 : 1;
             len -- ;
+            bPos = 1;
         }
-        data[len] = '\0';
+        int n=0;
+        for(int i= str.length()-1; i>=bPos; i--){
+            data[n++] = str[i] - '0';
+        }
+        data[len] = 0;
         trimHighZero();
         return *this;
     }
 
     bool BigInteger::isZero() const{
-        return len == 1 && data[0] == '0';
+        return len == 1 && data[0] == 0;
     }
 
     int BigInteger::compareTo(const BigInteger& other) const {
@@ -244,21 +246,21 @@ namespace pettystl {
         return sum;
     }
 
-    int BigInteger::absMultiplyOneDigit(char dest[], const BigInteger& other, const char digit) {
+    int BigInteger::absMultiplyOneDigit(byte dest[], const BigInteger& other, const byte digit) {
         int z = 0, shang;
-        int b= digit-'0'; //1~9
+        int b= digit; //1~9
         int len = other.len;
         for (int i = 0; i< len; i++) {
-            int a = other.data[i]-'0';
+            int a = other.data[i];
             shang = a * b + z;
-            dest[i] = shang % 10+'0';
+            dest[i] = shang % 10;
             z= shang/10;
         }
         if (z!=0) {
-            dest[len] = z +'0';
+            dest[len] = z ;
             len ++;
         }
-        dest[len] = '\0';
+        dest[len] = 0;
         return len;
     }
 
@@ -275,11 +277,11 @@ namespace pettystl {
         return mulitply;
     }
 
-    int BigInteger::absDivideOneStep(char dest[], int len, const BigInteger& other) {
+    int BigInteger::absDivideOneStep(byte dest[], int len, const BigInteger& other) {
         int result = 0;
         while(other.absCompare(dest, len, other.data, other.len)>=0){
             other.absMinus(dest, len, other);
-            if(dest[len-1]=='0')
+            if(dest[len-1]==0)
                 len--;
             result++;
         }
@@ -293,19 +295,19 @@ namespace pettystl {
         if(resLen<1)
             return divRes;
 
-        char data[BIG_INTEGET_MAX_LENGTH];
+        byte data[BIG_INTEGET_MAX_LENGTH];
         std::memcpy(data, other.data, BIG_INTEGET_MAX_LENGTH);
         
         for(int i=resLen-1; i>=0; i--){
             int dataLen = other2.len;
-            if(data[i+other2.len]>'0'){
+            if(data[i+other2.len]>0){
                 dataLen ++;
             }
             int d = divRes.absDivideOneStep(data + i, dataLen, other2);
-            divRes.data[i] = d+'0';
+            divRes.data[i] = d;
         }
         divRes.len = resLen;
-        divRes.data[resLen] = '\0';
+        divRes.data[resLen] = 0;
         divRes.trimHighZero();
         return divRes;
     }
@@ -321,7 +323,7 @@ namespace pettystl {
 
         for(int i=resLen-1; i>=0; i--){
             int dataLen = other2.len;
-            if(remainder.data[i+other2.len]>'0'){
+            if(remainder.data[i+other2.len]>0){
                 dataLen ++;
             }
             remainder.absDivideOneStep(remainder.data + i, dataLen, other2);
