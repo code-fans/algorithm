@@ -9,7 +9,7 @@
                 "-lstdc++",
                 "-g",
                 "${file}",
-                "${workspaceFolder}/pettystl/*.cpp",
+                //"${workspaceFolder}/pettystl/*.cpp",
                 "-o",
                 "${workspaceFolder}/${fileBasenameNoExtension}.o"
             ],
